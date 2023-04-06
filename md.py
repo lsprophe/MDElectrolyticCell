@@ -5,7 +5,7 @@ KBT = 1
 
 
 class Particle:
-    def __init__(self, k, mass, q_init, v_init, force_fun):
+    def __init__(self, k, mass, q_init, v_init, charge, force_fun):
         self.k = k
         self.mass = mass
         self.q = q_init
@@ -19,6 +19,9 @@ class Particle:
         # NVT constants
         self.c1 = None
         self.c2 = None
+
+        # for poisson eq.
+        self.charge = charge
 
     @property
     def force(self):
