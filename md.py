@@ -1,11 +1,12 @@
 import numpy as np
+from poisson import poisson
 
 # globals
 KBT = 1
 
 
 class Particle:
-    def __init__(self, k, mass, q_init, v_init, charge, force_fun):
+    def __init__(self, mass, q_init, v_init, charge, force_fun, k=None):
         self.k = k
         self.mass = mass
         self.q = q_init
@@ -25,7 +26,7 @@ class Particle:
 
     @property
     def force(self):
-        return self.force_fun(self.k, self.q)
+        return self.force_fun(self)
 
     def update_v(self, dt):
         self.v = self.v+(self.force/self.mass)*dt
@@ -51,7 +52,7 @@ def NVT_constants(gamma, dt, mass):
     return c1, c2
 
 
-def verlet_integrator(particles: list, n_steps, dt, rand_max=1, system='NVE', gamma=None, skip=0):
+def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE', gamma=None, skip=0):
     t_arr = [i*dt for i in range(n_steps+1)]
     n_par = len(particles)
     n_d = len(particles[0].q)
@@ -61,13 +62,15 @@ def verlet_integrator(particles: list, n_steps, dt, rand_max=1, system='NVE', ga
         for p in particles:
             p.c1, p.c2 = NVT_constants(gamma, dt, p.mass)
 
-        # NOTE: not sure if this should be random uniform or random normal???
         # NOTE: I calculate all the random numbers needed ahead of time for speed
         rands = np.random.normal(size=(n_par, n_steps, n_d))
 
     # iterate over time steps (keep track of step in case steps are skipped)
     i = 0
     while i < n_steps:
+        # before iterating through all particles, run all updates and checks
+        check_update(pes, particles)
+
         # iterate over particles in particle list
         for pi, p in enumerate(particles):
             p.update_v(dt/2.)
@@ -93,3 +96,6 @@ def verlet_integrator(particles: list, n_steps, dt, rand_max=1, system='NVE', ga
         for p in particles:
             pass
     return t_arr
+
+def check_update(pes, particles):
+    pes.calculate(particles)

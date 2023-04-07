@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
+
 from md import verlet_integrator, Particle
+from poisson import PoissonPES
 
 # NOTE: This is only for testing purposes
 def SHO_force(k, q):
@@ -18,21 +20,25 @@ def anifunc(n):
 
 def main():
     k = 1
-    q = np.array([-1, -1])
+    q = np.array([0, 0])
     v = np.array([0, 0])
     mass = 1
-    N = 5  # number of particles
+    NP = 5  # number of positive particles
+    NN = 5 # number of negative particles
     n_steps = 10**3
 
-    global particles
-    particles = [Particle(k, mass, q, v, force_fun=SHO_force) for n in range(N)]
+    poisson_pes = PoissonPES(nx=100, lx=1, p0=0, pl=1)
 
-    verlet_integrator(particles, n_steps, 0.1, system='NVT', gamma=10)
+    # randomize initial particle positions and velocities
+    particles = [Particle(mass, 2*np.random.rand(2)-1, 2*np.random.uniform(1,2)-1, 1, force_fun=poisson_pes.force) for n in range(NN)]
+    particles += [Particle(mass, 2*np.random.rand(2)-1, 2*np.random.uniform(1,2)-1, 1, force_fun=poisson_pes.force) for n in range(NP)]
+
+    verlet_integrator(particles, poisson_pes, n_steps, 0.1, system='NVT', gamma=10)
 
     fig, (ax1, ax2) = plt.subplots(1,2)
     
     # For testing, plots x and y positions on their own axes for each particle
-    for n in range(N):
+    for n in range(NN + NP):
         X = [point[0] for point in particles[n].q_arr]
         Y = [point[0] for point in particles[n].q_arr]
         print(X)
