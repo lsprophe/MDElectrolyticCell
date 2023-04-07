@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from poisson import poisson
 
 # globals
@@ -99,3 +100,8 @@ def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE
 
 def check_update(pes, particles):
     pes.calculate(particles)
+
+    plt.scatter([p.q[0] for p in particles], [p.q[1] for p in particles])
+    plt.show()
+    plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
+    plt.show()

@@ -5,6 +5,9 @@ import numpy as np
 from md import verlet_integrator, Particle
 from poisson import PoissonPES
 
+# GLOBALS
+e = 1.602*10**(-19)
+
 # NOTE: This is only for testing purposes
 def SHO_force(k, q):
     return -k*q
@@ -23,15 +26,15 @@ def main():
     q = np.array([0, 0])
     v = np.array([0, 0])
     mass = 1
-    NP = 5  # number of positive particles
-    NN = 5 # number of negative particles
+    NP = 500  # number of positive particles
+    NN = 500 # number of negative particles
     n_steps = 10**3
 
     poisson_pes = PoissonPES(nx=100, lx=1, p0=0, pl=1)
 
     # randomize initial particle positions and velocities
-    particles = [Particle(mass, 2*np.random.rand(2)-1, 2*np.random.uniform(1,2)-1, 1, force_fun=poisson_pes.force) for n in range(NN)]
-    particles += [Particle(mass, 2*np.random.rand(2)-1, 2*np.random.uniform(1,2)-1, 1, force_fun=poisson_pes.force) for n in range(NP)]
+    particles = [Particle(mass, np.random.rand(2), 2*np.random.uniform(1,2)-1, -e, force_fun=poisson_pes.force) for n in range(NN)]
+    particles += [Particle(mass, np.random.rand(2), 2*np.random.uniform(1,2)-1, e, force_fun=poisson_pes.force) for n in range(NP)]
 
     verlet_integrator(particles, poisson_pes, n_steps, 0.1, system='NVT', gamma=10)
 
