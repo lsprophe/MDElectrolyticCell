@@ -64,9 +64,9 @@ def poisson(nx, lx, particles, p0, pl):
     E = np.cumsum(dEdx)
 
     # Apply fixed boundary conditions: step 1: find mean field value
-    e_mean = np.sum(E) * (1/lx)
+    #e_mean = np.sum(E) * (1/lx)
     # step 2: add the following value to simulate eigenvalue problem
-    E += (pl - p0)/(lx - e_mean)
+    #E += (pl - p0)/(lx - e_mean)
 
     # This is the electric field value, so it needs to be returned too
     # to calculate the force on a given particle

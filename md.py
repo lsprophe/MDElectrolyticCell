@@ -92,16 +92,18 @@ def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE
             if i % (skip + 1) == 0:
                 # update arrays if this is not a step to skip
                 p.update_histories()
+
+        if i % 10 == 0:
+            plt.scatter([p.q[0] for p in particles if p.charge > 0], [p.q[1] for p in particles if p.charge > 0], label="Cations")
+            plt.scatter([p.q[0] for p in particles if p.charge < 0], [p.q[1] for p in particles if p.charge < 0], label="Anions")
+            plt.legend()
+            plt.show()
+            plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
+            plt.title("potential distribution")
+            plt.show()
         
         i += 1
-        for p in particles:
-            pass
     return t_arr
 
 def check_update(pes, particles):
     pes.calculate(particles)
-
-    plt.scatter([p.q[0] for p in particles], [p.q[1] for p in particles])
-    plt.show()
-    plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
-    plt.show()

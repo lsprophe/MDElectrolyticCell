@@ -33,8 +33,8 @@ def main():
     poisson_pes = PoissonPES(nx=100, lx=1, p0=0, pl=1)
 
     # randomize initial particle positions and velocities
-    particles = [Particle(mass, np.random.rand(2), 2*np.random.uniform(1,2)-1, -e, force_fun=poisson_pes.force) for n in range(NN)]
-    particles += [Particle(mass, np.random.rand(2), 2*np.random.uniform(1,2)-1, e, force_fun=poisson_pes.force) for n in range(NP)]
+    particles = [Particle(mass, np.array([np.random.rand()/2, np.random.rand()]), 2*np.random.uniform(1,2)-1, -e, force_fun=poisson_pes.force) for n in range(NN)]
+    particles += [Particle(mass, np.array([np.random.rand()/2 + 0.5, np.random.rand()]), 2*np.random.uniform(1,2)-1, e, force_fun=poisson_pes.force) for n in range(NP)]
 
     verlet_integrator(particles, poisson_pes, n_steps, 0.1, system='NVT', gamma=10)
 
