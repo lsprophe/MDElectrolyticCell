@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
 
-from md import verlet_integrator, Particle
-from poisson import PoissonPES
-from membrane import Membrane, Material
-from types import ParticleType
+from MD.md import verlet_integrator, Particle
+from MD.poisson import PoissonPES
+from MD.membrane import Membrane, Material
+from MD.types import ParticleType
 
 # GLOBALS
 e = 1.602*10**(-19)

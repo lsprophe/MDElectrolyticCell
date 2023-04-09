@@ -3,8 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt 
 from dataclasses import dataclass
 
-from forces import LJF_attractive, LJF_repulsive, coulomb
-from types import ParticleType
+from MD.forces import LJF_attractive, LJF_repulsive, coulomb
+from MD.types import ParticleType
 
 # GLOBALS
 e = 1.602*10**(-19)
@@ -15,20 +15,20 @@ class Material:
     psd = {'loc':1, 'scale':0.01}
     pore_charge = -2*e # sulfate group
     # lennard jones parameters for each ion type interacting with pore
-    pore_eps = {ParticleType.PROTON: 1
-                ParticleType.CATHODE_ION: 1
+    pore_eps = {ParticleType.PROTON: 1,
+                ParticleType.CATHODE_ION: 1,
                 ParticleType.ANODE_ION: 1}
-    pore_sigma = {ParticleType.PROTON: 1
-                  ParticleType.CATHODE_ION: 1
+    pore_sigma = {ParticleType.PROTON: 1,
+                  ParticleType.CATHODE_ION: 1,
                   ParticleType.ANODE_ION: 1}
 
     # lennard jones parameters for each ion type interacting with base
     # NOTE: base is assumed to be neutral and has no charge
-    base_eps = {ParticleType.PROTON: 1
-                ParticleType.CATHODE_ION: 1
+    base_eps = {ParticleType.PROTON: 1,
+                ParticleType.CATHODE_ION: 1,
                 ParticleType.ANODE_ION: 1}
-    base_sigma = {ParticleType.PROTON: 1
-                  ParticleType.CATHODE_ION: 1
+    base_sigma = {ParticleType.PROTON: 1,
+                  ParticleType.CATHODE_ION: 1,
                   ParticleType.ANODE_ION: 1}
 
     pore_density = 100  # number density of particles in pores (related to hydration)

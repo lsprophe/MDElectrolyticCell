@@ -1,8 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from forces import pair_pot
-from types import ParticleType
+from MD.forces import pair_pot
+from MD.types import ParticleType
 
 # globals
 KBT = 1
