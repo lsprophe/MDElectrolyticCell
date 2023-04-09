@@ -35,14 +35,14 @@ def main():
     membrane = Membrane(thickness, x_centre, height, material, n_slices)
 
     ### STEP 2: setup ions in solution ###
-    NC = 500  # number of charged catholyte ions
+    NC = 5  # number of charged catholyte ions
     mass_c = 82.94 # mass of catholyte ions
     charge_c = e # charge of catholyte ions
-    NA = 500 # number of charged anolyte ions
+    NA = 5 # number of charged anolyte ions
     mass_a = 50.94 # mass of anolyte ions
     charge_a = 2*e# charge of anolyte ions
-    NP_C = 500 # number of protons cathode side
-    NP_A = 500 # number of protons anode side
+    NP_C = 5 # number of protons cathode side
+    NP_A = 5 # number of protons anode side
     mass_p = 1 # mass of protons
     charge_p = e # charge of proton
     n_steps = 10**3
@@ -52,10 +52,10 @@ def main():
 
     # randomize initial particle positions and velocities
     # NOTE: putting catholyte on the left and anolyte on the right
-    particles = [Particle(mass_c, np.array([np.random.rand()*(x_centre-(thickness/2)), np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_c, type=ParticleType.CATHODE_ION) for n in range(NC)]
-    particles += [Particle(mass_a, np.array([np.random.rand()*(x_centre-(thickness/2))+((x_centre+(thickness/2))), np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_a, type=ParticleType.ANODE_ION) for n in range(NA)]
-    particles += [Particle(mass_p, np.array([np.random.rand()*(x_centre-(thickness/2)), np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_p, type=ParticleType.PROTON) for n in range(NP_C)]
-    particles += [Particle(mass_p, np.array([np.random.rand()*(x_centre-(thickness/2))+((x_centre+(thickness/2))), np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_p, type=ParticleType.PROTON) for n in range(NP_A)]
+    particles = [Particle(mass_c, np.array([np.random.rand()*(x_centre-(thickness/2)), height*np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_c, type=ParticleType.CATHODE_ION) for n in range(NC)]
+    particles += [Particle(mass_a, np.array([np.random.rand()*(x_centre-(thickness/2))+((x_centre+(thickness/2))), height*np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_a, type=ParticleType.ANODE_ION) for n in range(NA)]
+    particles += [Particle(mass_p, np.array([np.random.rand()*(x_centre-(thickness/2)), height*np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_p, type=ParticleType.PROTON) for n in range(NP_C)]
+    particles += [Particle(mass_p, np.array([np.random.rand()*(x_centre-(thickness/2))+((x_centre+(thickness/2))), height*np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_p, type=ParticleType.PROTON) for n in range(NP_A)]
     
     verlet_integrator(particles, poisson_pes, membrane, n_steps, 0.1, system='NVT', gamma=10)
 

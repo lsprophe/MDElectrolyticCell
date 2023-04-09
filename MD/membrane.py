@@ -101,7 +101,7 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
     dx = thickness / n_slices
 
     # make array of x value ranges
-    slices = np.array(range(n_slices)) * dx
+    slices = (np.array(range(n_slices)) * dx) + x_l
     
     # determine mean distance between pores
     dist_mean = (height - n_pores*psd["loc"])/n_pores
@@ -131,7 +131,7 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
         pore_sizes.append((head-btm))
         if head >= height:
             break
-        
+
     # now generate pore and base locations in the remaining slices
     for si in range(1, n_slices-1):
         x_range = (slices[si], slices[si+1])

@@ -77,6 +77,8 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
         rands = np.random.normal(size=(n_par, n_steps, n_d))
 
     # iterate over time steps (keep track of step in case steps are skipped)
+    # show initial positions
+    scatter(particles, membrane)
     i = 0
     while i < n_steps:
         # iterate over particles in particle list
@@ -103,16 +105,19 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
                 p.update_histories()
 
         if i % 10 == 0:
-            plt.scatter([p[0] for p in membrane.base_particles], [p[1] for p in membrane.base_particles], label="Membrane - Base")
-            plt.scatter([p[0] for p in membrane.pore_particles], [p[1] for p in membrane.pore_particles], label="Membrane - ")
-            plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.CATHODE_ION], label="Cathode Ions")
-            plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.ANODE_ION], label="Anode Ions")
-            plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.PROTON], label="Protons")
-            plt.legend()
-            plt.show()
+            scatter(particles, membrane)
             # plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
             # plt.title("potential distribution")
             # plt.show()
         
         i += 1
     return t_arr
+
+def scatter(particles, membrane):
+    plt.scatter([p[0] for p in membrane.base_particles], [p[1] for p in membrane.base_particles], label="Membrane - Base")
+    plt.scatter([p[0] for p in membrane.pore_particles], [p[1] for p in membrane.pore_particles], label="Membrane - Pores")
+    plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.CATHODE_ION], label="Cathode Ions")
+    plt.scatter([p.q[0] for p in particles if p.type is ParticleType.ANODE_ION], [p.q[1] for p in particles if p.type is ParticleType.ANODE_ION], label="Anode Ions")
+    plt.scatter([p.q[0] for p in particles if p.type is ParticleType.PROTON], [p.q[1] for p in particles if p.type is ParticleType.PROTON], label="Protons")
+    plt.legend()
+    plt.show()
