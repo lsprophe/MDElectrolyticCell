@@ -8,6 +8,8 @@ from types import ParticleType
 
 @dataclass
 class Material:
+    porosity = 0.4
+    psd = {'loc':1, 'scale':0.01}
     pore_charge = 1
     # lennard jones parameters for each ion type interacting with pore
     pore_eps = {ParticleType.PROTON: 1
@@ -26,18 +28,19 @@ class Material:
                   ParticleType.CATHODE_ION: 1
                   ParticleType.ANODE_ION: 1}
 
-    pore_density = 10000  # number density of particles in pores (related to hydration)
+    pore_density = 100  # number density of particles in pores (related to hydration)
     base_density = 10000 # number density of particles in backbone
     cf = 1  # continuity factor (see pore_locations)
 
 class Membrane:
-    def __init__(self, porosity, psd: dict, thickness, x_centre, height, material, n_slices):
+    def __init__(self, thickness, x_centre, height, material, n_slices):
         self.porosity = porosity
         self.x_l = x_centre -(thickness/2)
         self.x_r = x_centre + (thickness/2)
 
         self.material = material
-
+        psd = self.material.psd
+        porosity = self.material.porosity
         self.base_particles, self.pore_particles = place_particles(psd, porosity, x_centre, height, thickness, n_slices, material.cf, material.base_density, material.pore_density)
 
     def calculate_interactions(self, particle):
