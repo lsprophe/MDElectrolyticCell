@@ -95,7 +95,7 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
 
                 p.update_q(dt/2.)
 
-            p.update_force(particles, membrane, pes)
+            p.update_force(particles, membrane)
             p.update_v(dt/2.)
 
             if i % (skip + 1) == 0:

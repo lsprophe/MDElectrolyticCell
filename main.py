@@ -57,7 +57,7 @@ def main():
     particles += [Particle(mass_p, np.array([np.random.rand()*(x_centre-(thickness/2)), np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_p, type=ParticleType.PROTON) for n in range(NP_C)]
     particles += [Particle(mass_p, np.array([np.random.rand()*(x_centre-(thickness/2))+((x_centre+(thickness/2))), np.random.rand()]), 2*np.random.uniform(1,2)-1, charge_p, type=ParticleType.PROTON) for n in range(NP_A)]
     
-    verlet_integrator(particles, poisson_pes, n_steps, 0.1, system='NVT', gamma=10)
+    verlet_integrator(particles, poisson_pes, membrane, n_steps, 0.1, system='NVT', gamma=10)
 
     # NOTE: This is a WIP to do animation of particle positions
     '''

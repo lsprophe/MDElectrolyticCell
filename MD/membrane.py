@@ -37,7 +37,6 @@ class Material:
 
 class Membrane:
     def __init__(self, thickness, x_centre, height, material, n_slices):
-        self.porosity = porosity
         self.x_l = x_centre -(thickness/2)
         self.x_r = x_centre + (thickness/2)
 
@@ -56,8 +55,8 @@ class Membrane:
             # use lennard jones attractive and repulsive potentials bc
             # base particles are uncharged??
             # NOTE: not sure if this is right?
-            eps = self.material.base_eps[p.type]
-            sigma = self.material.base_sigma[p.type]
+            eps = self.material.base_eps[particle.type]
+            sigma = self.material.base_sigma[particle.type]
             force = LJF_attractive(p, particle.q, eps, sigma) + LJF_repulsive(p, particle.q, eps, sigma)
             force_total += force
         for p in self.pore_particles:
@@ -65,9 +64,9 @@ class Membrane:
             # lennard jones repulsive will have almost no impact if the 
             # coulomb force is already repulsive, however if it is attractive
             # it will prevent particles from coming too close to each other
-            eps = self.material.pore_eps[p.type]
-            sigma = self.material.pore_sigma[p.type]
-            force = coulomb(p, particle.q, self.material.pore_charge, p.charge) + LJF_repulsive(p, particle.q, eps, sigma)
+            eps = self.material.pore_eps[particle.type]
+            sigma = self.material.pore_sigma[particle.type]
+            force = coulomb(p, particle.q, self.material.pore_charge, particle.charge) + LJF_repulsive(p, particle.q, eps, sigma)
             force_total += force
         
         return force_total
@@ -132,9 +131,7 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
         pore_sizes.append((head-btm))
         if head >= height:
             break
-    plt.scatter([p[0] for p in base_particles], [p[1] for p in base_particles], label="Base Particles")
-    plt.scatter([p[0] for p in pore_particles], [p[1] for p in pore_particles], label="Pore Particles")
-    plt.show()
+        
     # now generate pore and base locations in the remaining slices
     for si in range(1, n_slices-1):
         x_range = (slices[si], slices[si+1])
