@@ -1,6 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
+
 from poisson import poisson
+from forces import pair_pot
 from types import ParticleType
 
 # globals
@@ -8,12 +10,11 @@ KBT = 1
 
 
 class Particle:
-    def __init__(self, mass, q_init, v_init, charge, force_fun, type: ParticleType, k=None):
+    def __init__(self, mass, q_init, v_init, charge, force, type: ParticleType, k=None):
         self.k = k
         self.mass = mass
         self.q = q_init
         self.v = v_init
-        self.force_fun = force_fun
 
         self.q_arr = []
         self.force_arr = []
@@ -26,10 +27,19 @@ class Particle:
         # for forces
         self.charge = charge
         self.type = type
+        self._force = np.zeros(2)
 
     @property
     def force(self):
-        return self.force_fun(self)
+        return self._force
+    
+    def update_force(self, particles, membrane, pes):
+        # set the force variable using pes force field, membrance
+        # force field, and pair potential force field
+        membrane_force = membrane.calculate_interactions(self)
+        pair_pot_force = pair_pot(self, particles)
+        poisson_force = pes.force(self)
+        self._force = membrane_force + pair_pot_force + poisson_force
 
     def update_v(self, dt):
         self.v = self.v+(self.force/self.mass)*dt
@@ -55,7 +65,7 @@ def NVT_constants(gamma, dt, mass):
     return c1, c2
 
 
-def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE', gamma=None, skip=0):
+def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, system='NVE', gamma=None, skip=0):
     t_arr = [i*dt for i in range(n_steps+1)]
     n_par = len(particles)
     n_d = len(particles[0].q)
@@ -71,11 +81,12 @@ def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE
     # iterate over time steps (keep track of step in case steps are skipped)
     i = 0
     while i < n_steps:
-        # before iterating through all particles, run all updates and checks
-        check_update(pes, particles)
+        # before iterating through all particles, update poisson pes
+        pes.calculate(particles)
 
         # iterate over particles in particle list
         for pi, p in enumerate(particles):
+            p.update_force(particles, membrane, pes)
             p.update_v(dt/2.)
             if system == 'NVE':
                 p.update_q(dt)
@@ -89,6 +100,7 @@ def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE
 
                 p.update_q(dt/2.)
 
+            p.update_force(particles, membrane, pes)
             p.update_v(dt/2.)
 
             if i % (skip + 1) == 0:
@@ -106,6 +118,3 @@ def verlet_integrator(particles: list, pes, n_steps, dt, rand_max=1, system='NVE
         
         i += 1
     return t_arr
-
-def check_update(pes, particles):
-    pes.calculate(particles)
