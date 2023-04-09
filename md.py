@@ -9,7 +9,7 @@ KBT = 1
 
 
 class Particle:
-    def __init__(self, mass, q_init, v_init, charge, force, type: ParticleType, k=None):
+    def __init__(self, mass, q_init, v_init, charge, type: ParticleType, k=None):
         self.k = k
         self.mass = mass
         self.q = q_init
@@ -103,13 +103,16 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
                 p.update_histories()
 
         if i % 10 == 0:
-            plt.scatter([p.q[0] for p in particles if p.charge > 0], [p.q[1] for p in particles if p.charge > 0], label="Cations")
-            plt.scatter([p.q[0] for p in particles if p.charge < 0], [p.q[1] for p in particles if p.charge < 0], label="Anions")
+            plt.scatter([p[0] for p in membrane.base_particles], [p[1] for p in membrane.base_particles], label="Membrane - Base")
+            plt.scatter([p[0] for p in membrane.pore_particles], [p[1] for p in membrane.pore_particles], label="Membrane - ")
+            plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.CATHODE_ION], label="Cathode Ions")
+            plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.ANODE_ION], label="Anode Ions")
+            plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.PROTON], label="Protons")
             plt.legend()
             plt.show()
-            plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
-            plt.title("potential distribution")
-            plt.show()
+            # plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
+            # plt.title("potential distribution")
+            # plt.show()
         
         i += 1
     return t_arr
