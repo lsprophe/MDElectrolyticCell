@@ -1,8 +1,57 @@
 import numpy as np
 
 # globals
-EPS = 40*4184/
-SIGMA = 2.4e-10 # m
+K_E = 8.988e9  #coulomb constant
+
+# simple two atom potential functions
+def LJF_attractive(l1, l2, eps, sigma):
+    ''' Arguments:
+    l1 -> location of particle 1
+    l2 -> location of particle 2
+    eps -> epsilon for lennard jones
+    sigma -> sigma for lennard jones
+    '''
+    # Calculate interparticle distances
+    dx = l1[0] - l2[0]
+    dy = l1[1] - l2[1]
+    r_ij = np.sqrt(dx**2 + dy**2)
+
+    # Calculate magnitude of attractive field according to Lennard-Jones Potential
+    field_mag = 24*eps*((sigma/r_ij)**5)
+
+    # Update electric field vector
+    f_x = field_mag * dx/r_ij
+    f_y = field_mag * dy/r_ij
+
+    return (f_x, f_y)
+
+def coulomb_attractive(l1, l2, charge1, charge2):
+    # Calculate interparticle distances
+    dx = l1[0] - l2[0]
+    dy = l1[1] - l2[1]
+    r_ij = np.sqrt(dx**2 + dy**2)
+
+    f_mag = K_E*(abs(charge1)*abs(charge2)) / (r_ij**2)
+
+    f_x = f_mag * (dx/r_ij)
+    f_y = f_mag * (dy/r_ij)
+
+    return (f_x, f_y)
+
+def LJF_repulsive(l1, l2, eps, sigma):
+    # Calculate interparticle distances
+    dx = l1[0] - l2[0]
+    dy = l1[1] - l2[1]
+    r_ij = np.sqrt(dx**2 + dy**2)
+
+    # Calculate magnitude of repulsive field according to Lennard-Jones Potential
+    field_mag = 24*eps*(2*(sigma/r_ij)**11)
+
+    # Update electric field vector
+    f_x = field_mag * dx/r_ij
+    f_y = field_mag * dy/r_ij
+
+    return (f_x, f_y)
 
 def ext_field(lx, particles, p0, pl):
     ''' Arguments:
