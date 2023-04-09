@@ -9,7 +9,7 @@ KBT = 1
 
 
 class Particle:
-    def __init__(self, mass, q_init, v_init, charge, type: ParticleType, k=None):
+    def __init__(self, mass, q_init, v_init, charge, x_range, y_range, type: ParticleType, k=None):
         self.k = k
         self.mass = mass
         self.q = q_init
@@ -18,6 +18,9 @@ class Particle:
         self.q_arr = []
         self.force_arr = []
         self.v_arr = []
+
+        self.x_range = x_range
+        self.y_range = y_range
 
         # NVT constants
         self.c1 = None
@@ -43,7 +46,13 @@ class Particle:
         self.v = self.v+(self.force/self.mass)*dt
         
     def update_q(self, dt):
-        self.q = self.q + dt*self.v
+        # check elastic boundaries and update v if necessary
+        q = self.q + dt*self.v
+        v_mod = elastic_boundaries(q, self.x_range, self.y_range)
+        if np.any(v_mod < 1):
+            self.v = np.multiply(self.v, v_mod)
+            q = self.q + dt*self.v 
+        self.q = q
     
     def update_histories(self):
         self.q_arr.append(self.q)
@@ -116,8 +125,20 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
 def scatter(particles, membrane):
     plt.scatter([p[0] for p in membrane.base_particles], [p[1] for p in membrane.base_particles], label="Membrane - Base")
     plt.scatter([p[0] for p in membrane.pore_particles], [p[1] for p in membrane.pore_particles], label="Membrane - Pores")
+    plt.xlim(0, 10)
+    plt.ylim(0,10)
     plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.CATHODE_ION], label="Cathode Ions")
     plt.scatter([p.q[0] for p in particles if p.type is ParticleType.ANODE_ION], [p.q[1] for p in particles if p.type is ParticleType.ANODE_ION], label="Anode Ions")
     plt.scatter([p.q[0] for p in particles if p.type is ParticleType.PROTON], [p.q[1] for p in particles if p.type is ParticleType.PROTON], label="Protons")
     plt.legend()
     plt.show()
+
+def elastic_boundaries(q, x_range, y_range):
+    v_mod = np.array([1, 1])
+    if (q[0] > x_range[1]) or (q[0] < x_range[0]):
+        v_mod[0] = -1
+    
+    if (q[1] > y_range[1]) or (q[0] < y_range[1]):
+        v_mod[1] = -1
+    
+    return v_mod
