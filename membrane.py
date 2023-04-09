@@ -9,7 +9,7 @@ class Material:
     base_charge = 1
 
     pore_density = 10000  # number density of particles in pores (related to hydration)
-    base_density = 100000 # number density of particles in backbone
+    base_density = 10000 # number density of particles in backbone
     cf = 0.01  # continuity factor (see pore_locations)
 
 class Membrane:
@@ -46,14 +46,15 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
     # number of pores is the porosity * membrane length (total amount of desired empty space)
     # divided by the mean pore size
     n_pores = int(round((porosity*height) / psd["loc"]))
-    
+    print(n_pores)
+
     dx = thickness / n_slices
 
     # make array of x value ranges
     slices = np.array(range(n_slices)) * dx
     
     # determine mean distance between pores
-    dist_mean = height - n_pores*psd["loc"]
+    dist_mean = (height - n_pores*psd["loc"])/n_pores
     # distance between pores distribution
     dd = {"loc":dist_mean, "scale": psd["scale"]}
 
