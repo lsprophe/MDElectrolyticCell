@@ -1,7 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from poisson import poisson
 from forces import pair_pot
 from types import ParticleType
 
@@ -33,13 +32,12 @@ class Particle:
     def force(self):
         return self._force
     
-    def update_force(self, particles, membrane, pes):
-        # set the force variable using pes force field, membrance
+    def update_force(self, particles, membrane):
+        # set the force variable using membrance
         # force field, and pair potential force field
         membrane_force = membrane.calculate_interactions(self)
         pair_pot_force = pair_pot(self, particles)
-        poisson_force = pes.force(self)
-        self._force = membrane_force + pair_pot_force + poisson_force
+        self._force = membrane_force + pair_pot_force
 
     def update_v(self, dt):
         self.v = self.v+(self.force/self.mass)*dt
@@ -81,12 +79,9 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
     # iterate over time steps (keep track of step in case steps are skipped)
     i = 0
     while i < n_steps:
-        # before iterating through all particles, update poisson pes
-        pes.calculate(particles)
-
         # iterate over particles in particle list
         for pi, p in enumerate(particles):
-            p.update_force(particles, membrane, pes)
+            p.update_force(particles, membrane)
             p.update_v(dt/2.)
             if system == 'NVE':
                 p.update_q(dt)
