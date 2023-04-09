@@ -3,10 +3,28 @@ import numpy as np
 from matplotlib import pyplot as plt 
 from dataclasses import dataclass
 
+from forces import LJF_attractive, LJF_repulsive, coulomb
+from types import ParticleType
+
 @dataclass
 class Material:
     pore_charge = 1
-    base_charge = 1
+    # lennard jones parameters for each ion type interacting with pore
+    pore_eps = {ParticleType.PROTON: 1
+                ParticleType.CATHODE_ION: 1
+                ParticleType.ANODE_ION: 1}
+    pore_sigma = {ParticleType.PROTON: 1
+                  ParticleType.CATHODE_ION: 1
+                  ParticleType.ANODE_ION: 1}
+
+    # lennard jones parameters for each ion type interacting with base
+    # NOTE: base is assumed to be neutral and has no charge
+    base_eps = {ParticleType.PROTON: 1
+                ParticleType.CATHODE_ION: 1
+                ParticleType.ANODE_ION: 1}
+    base_sigma = {ParticleType.PROTON: 1
+                  ParticleType.CATHODE_ION: 1
+                  ParticleType.ANODE_ION: 1}
 
     pore_density = 10000  # number density of particles in pores (related to hydration)
     base_density = 10000 # number density of particles in backbone
@@ -21,6 +39,32 @@ class Membrane:
         self.material = material
 
         self.base_particles, self.pore_particles = place_particles(psd, porosity, x_centre, height, thickness, n_slices, material.cf, material.base_density, material.pore_density)
+
+    def calculate_interactions(self, particle):
+        '''
+        Calculates total force from membrane particles on a particle
+        particle -> particle object
+        '''
+        force_total = np.zeros(2)
+        for p in self.base_particles:
+            # use lennard jones attractive and repulsive potentials bc
+            # base particles are uncharged??
+            # NOTE: not sure if this is right?
+            eps = self.material.base_eps[p.type]
+            sigma = self.material.base_sigma[p.type]
+            force = LJF_attractive(p, particle.q, eps, sigma) + LJF_repulsive(p, particle.q, eps, sigma)
+            force_total += force
+        for p in self.pore_particles:
+            # use coulomb attractive/repulsive and lennard jones repulsive
+            # lennard jones repulsive will have almost no impact if the 
+            # coulomb force is already repulsive, however if it is attractive
+            # it will prevent particles from coming too close to each other
+            eps = self.material.pore_eps[p.type]
+            sigma = self.material.pore_sigma[p.type]
+            force = coulomb(p, particle.q, self.material.pore_charge, p.charge) + LJF_repulsive(p, particle.q, eps, sigma)
+            force_total += force
+        
+        return force_total
 
 def merge_intervals(intervals):
     # Sort the array on the basis of start values of intervals.
