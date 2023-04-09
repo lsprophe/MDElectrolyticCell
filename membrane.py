@@ -1,4 +1,6 @@
 import numpy as np
+
+from matplotlib import pyplot as plt 
 from dataclasses import dataclass
 
 @dataclass
@@ -6,9 +8,9 @@ class Material:
     pore_charge = 1
     base_charge = 1
 
-    pore_density = 1  # number density of particles in pores (related to hydration)
-    base_density = 1  # number density of particles in backbone
-    cf = 1  # continuity factor (see pore_locations)
+    pore_density = 10  # number density of particles in pores (related to hydration)
+    base_density = 100  # number density of particles in backbone
+    cf = 0.01  # continuity factor (see pore_locations)
 
 class Membrane:
     def __init__(self, porosity, psd: dict, thickness, x_centre, height, material, n_slices):
@@ -22,7 +24,7 @@ class Membrane:
 
 def merge_intervals(intervals):
     # Sort the array on the basis of start values of intervals.
-    intervals = intervals.sorted(key=lambda tup: tup[0])
+    intervals.sort(key=lambda tup: tup[0])
     stack = []
     # insert first interval into stack
     stack.append(intervals[0])
@@ -45,19 +47,18 @@ def pore_locations(psd, porosity, x_centre, height, thickness, n_slices, cf):
 
     # number of pores is the porosity * membrane length (total amount of desired empty space)
     # divided by the mean pore size
-    n_pores = (porosity*height) / psd["loc"]
+    n_pores = int(round((porosity*height) / psd["loc"]))
     
     dx = thickness / n_slices
 
     # make array of x value ranges
     # array format is [(min 1, max 1), (min 2, max2), ...]
     slices = np.array(range(n_slices)) * dx
-    slice_ranges = np.array([(slices[n], slices[n+1]) for n in range(n_slices)])
     
-    # list of sets of tuples (LMAO), each set represents one slice in the 
-    # x direction.  Each tuple in each set is an interval representing the
+    # list of lists of lists (LMAO), each sublist represents one slice in the 
+    # x direction.  Each sublist in each sublist is an interval representing the
     # boundaries of one pore in the form (pore bottom y, pore top y)
-    pores = [set()] * n_slices
+    pores = [[]] * n_slices
     
     # iterate through each pore, and within each pore iterate through 
     # thickness, placing new pores offset depending on the continuity factor (cf)
@@ -65,19 +66,18 @@ def pore_locations(psd, porosity, x_centre, height, thickness, n_slices, cf):
         # place first pore centre randomly
         m = np.random.uniform(low=0, high=height)
         # get pore size from normal pore size distribution
-        d = np.random.normal(psd)
+        d = np.random.normal(**psd)
 
-        # place first top and bottom tuples in corresponding set
-        pores[0].add((m-(d/2), m+(d/2)))
+        # place first top and bottom tuples in corresponding list
+        pores[0].append([m-(d/2), m+(d/2)])
         for si in range(1, n_slices):
             # move middle of pore depending on continuity factor
             m += cf*np.random.uniform(low=-1, high=1)
             # place top and bottom in appropriate slice
-            pores[si].add((m-(d/2), m+(d/2)))
+            pores[si].append([m-(d/2), m+(d/2)])
     
     # merge overlapping pores in each slice.  This is important for the next step
-    # note that what was previously a set is now a list
-    for si in range(0, slices):
+    for si in range(0, n_slices):
         pores[si] = merge_intervals(pores[si])
     
     return dx, slices, pores
@@ -109,10 +109,10 @@ def particle_locations(slices, dx, pores, ly, pore_density, base_density):
 
     # find pore areas to determine number of pore and base particles to place
     p_area = 0
-    for si in range(1, len(slices)+1):
+    for si in range(1, len(slices)):
         # get slice range
-        slice = (slices(si-1), slices(si))
-        for pore in pores:
+        slice = (slices[si-1], slices[si])
+        for pore in pores[si]:
             # calculate area of pore
             area = (slice[1] - slice[0]) * (pore[1] - pore[0])
             p_area += area
@@ -131,7 +131,7 @@ def particle_locations(slices, dx, pores, ly, pore_density, base_density):
         # generate random point in the membrane area
         point = (np.random.uniform(low=slices[0], high=slices[-1]), np.random.uniform(low=0, high=ly))
         # determine the slice that this point is in
-        si = point[0] // dx
+        si = int(point[0] // dx)
         # check if the y value places it in a pore with a very simple binary search. (could do this faster)
         if binary_search_intervals(pores[si], point[1]):
             # place a pore particle
@@ -145,3 +145,12 @@ def particle_locations(slices, dx, pores, ly, pore_density, base_density):
                 n_bp += 1
     
     return base_particles, pore_particles
+
+if __name__ == '__main__':
+    material = Material()
+    psd = {'loc':0.1, 'scale':0.01}
+
+    membrane = Membrane(0.4, psd, 0.25, 0.5, 1, material, 10)
+
+    plt.scatter([p.q[0] for p in membrane.base_particles], [p.q[1] for p in membrane.base_particles], label="Base Particles")
+    plt.scatter([p.q[0] for p in membrane.pore_particles], [p.q[1] for p in membrane.pore_particles], label="Pore Particles")
