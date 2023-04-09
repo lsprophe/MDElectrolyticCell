@@ -23,7 +23,7 @@ def LJF_attractive(l1, l2, eps, sigma):
     f_x = field_mag * dx/r_ij
     f_y = field_mag * dy/r_ij
 
-    return (f_x, f_y)
+    return np.array([f_x, f_y])
 
 def coulomb(l1, l2, charge1, charge2):
     # Calculate interparticle distances
@@ -36,7 +36,7 @@ def coulomb(l1, l2, charge1, charge2):
     f_x = f_mag * (dx/r_ij)
     f_y = f_mag * (dy/r_ij)
 
-    return (f_x, f_y)
+    return np.array([f_x, f_y])
 
 def LJF_repulsive(l1, l2, eps, sigma):
     # Calculate interparticle distances
@@ -51,7 +51,7 @@ def LJF_repulsive(l1, l2, eps, sigma):
     f_x = field_mag * dx/r_ij
     f_y = field_mag * dy/r_ij
 
-    return (f_x, f_y)
+    return np.array([f_x, f_y])
 
 def ext_field(lx, particles, p0, pl):
     ''' Arguments:
