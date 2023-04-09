@@ -10,13 +10,15 @@ class Material:
 
     pore_density = 10000  # number density of particles in pores (related to hydration)
     base_density = 10000 # number density of particles in backbone
-    cf = 0.01  # continuity factor (see pore_locations)
+    cf = 1  # continuity factor (see pore_locations)
 
 class Membrane:
     def __init__(self, porosity, psd: dict, thickness, x_centre, height, material, n_slices):
         self.porosity = porosity
         self.x_l = x_centre -(thickness/2)
         self.x_r = x_centre + (thickness/2)
+
+        self.material = material
 
         self.base_particles, self.pore_particles = place_particles(psd, porosity, x_centre, height, thickness, n_slices, material.cf, material.base_density, material.pore_density)
 
@@ -46,7 +48,6 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
     # number of pores is the porosity * membrane length (total amount of desired empty space)
     # divided by the mean pore size
     n_pores = int(round((porosity*height) / psd["loc"]))
-    print(n_pores)
 
     dx = thickness / n_slices
 
@@ -65,22 +66,17 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
 
     # first generate random pore locations in the first slice
     x_range = (slices[0], slices[1])
-    print(x_range)
     pore_centres = []
     pore_sizes = []
     while True:
         # generate a non-porous region
-        print("generating non-porous region")
         head, points = generate_region(head, dd, height, base_density, x_range)
         base_particles = base_particles + points
-        print(f"head is at {head} out of {height}")
         if head >= height:
             break
         # generate a porous region
         btm = head
-        print("generating porous region")
         head, points = generate_region(head, psd, height, pore_density, x_range)
-        print(f"head is at {head} out of {height}")
         pore_particles = pore_particles + points
         pore_centres.append((head+btm)/2)
         pore_sizes.append((head-btm))
@@ -91,7 +87,6 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
     plt.show()
     # now generate pore and base locations in the remaining slices
     for si in range(1, n_slices-1):
-        print(f"generating slice {si} out of {n_slices}")
         x_range = (slices[si], slices[si+1])
         # update pore centres
         pore_centres = [c + np.random.uniform(low=-(cf/2), high=(cf/2)) for c in pore_centres]
@@ -120,6 +115,15 @@ def place_particles(psd, porosity, x_centre, height, thickness, n_slices, cf, ba
             points_p = generate_points(x_range, y_range, n_ppts)
             pore_particles += points_p
             head = invl[1]
+        
+        if head < height:
+            # still one more non-porous region to generate
+            y_range = (head, height)
+            # determin number of points
+            b_area = (y_range[1] - y_range[0]) * (x_range[1]-x_range[0])
+            n_bpts = int(np.round(base_density * b_area))
+            points_b = generate_points(x_range, y_range, n_bpts)
+            base_particles += points_b
     
     return base_particles, pore_particles
 
@@ -155,9 +159,9 @@ def generate_points(x_range, y_range, npoints):
 
 if __name__ == '__main__':
     material = Material()
-    psd = {'loc':0.1, 'scale':0.01}
+    psd = {'loc':1, 'scale':0.01}
 
-    membrane = Membrane(0.4, psd, 0.1, 1, 10, material, 10)
+    membrane = Membrane(0.4, psd, 0.1, 1, 10, material, 30)
     plt.scatter([p[0] for p in membrane.base_particles], [p[1] for p in membrane.base_particles], label="Base Particles")
     plt.scatter([p[0] for p in membrane.pore_particles], [p[1] for p in membrane.pore_particles], label="Pore Particles")
     plt.show()
