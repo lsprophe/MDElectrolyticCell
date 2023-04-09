@@ -75,39 +75,24 @@ def ext_field(lx, particles, p0, pl):
     
     return ef_force
 
-def pair_pot(particles): 
+def pair_pot(particle, particles): 
     ''' Arguments:
+    particle -> particular particle that is being investigated
     particles -> list of particle objects
     '''
-    ### WIP - pair potential should likely use coulomb interaction instead of Lennard-Jones!!
+    force = np.zeros(2)
 
-    # Define array to hold electric field for each particle
-    # pp : "Pair Potential"
-    pp_force = np.zeros([len(particles),2])
+    for p_j in particles:
+        # Check for self-interaction
+        if p_j is not particle:
+            # Calculate interparticle distances
+            l_j = p_j.q # Interacting particle position
+            charge_j = p_j.charge # Interacting particle charge
 
-    # Loop for each particle
-    for idx_i, p_i in range(len(pp_force)):
-        l_i = p_i.q # Primary particle position
-        charge_i = p_i.charge # Primary particle charge
+            # Calculate electric field according to Coulomb interactions
+            (f_x,f_y) = coulomb(particle.q, l_j, particle.charge, charge_j)
 
-        # Loop over each interacting particle
-        idx_j = 0
-        for p_j in particles:
-            # Check for self-interaction
-            if idx_j != idx_i:
-                # Calculate interparticle distances
-                l_j = p_j.q # Interacting particle position
-                charge_j = p_j.charge # Interacting particle charge
+            # Update pair-potential force
+            force += np.array([f_x, f_y])
 
-                # Calculate electric field according to Coulomb interactions
-                (f_x,f_y) = coulomb(l_i, l_j, charge_i, charge_j)
-
-                # Update pair-potential force
-                pp_force[idx_i][0] += f_x
-                pp_force[idx_i][1] += f_y
-
-            idx_j += 1
-
-    return pp_force
-
-def combined_forcefield(lx, particles, p0, pl):
+    return force
