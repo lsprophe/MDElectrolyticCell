@@ -1,13 +1,14 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from poisson import poisson
+from types import ParticleType
 
 # globals
 KBT = 1
 
 
 class Particle:
-    def __init__(self, mass, q_init, v_init, charge, force_fun, k=None):
+    def __init__(self, mass, q_init, v_init, charge, force_fun, type: ParticleType, k=None):
         self.k = k
         self.mass = mass
         self.q = q_init
@@ -22,8 +23,9 @@ class Particle:
         self.c1 = None
         self.c2 = None
 
-        # for poisson eq.
+        # for forces
         self.charge = charge
+        self.type = type
 
     @property
     def force(self):
