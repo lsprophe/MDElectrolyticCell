@@ -6,11 +6,14 @@ from dataclasses import dataclass
 from forces import LJF_attractive, LJF_repulsive, coulomb
 from types import ParticleType
 
+# GLOBALS
+e = 1.602*10**(-19)
+
 @dataclass
 class Material:
     porosity = 0.4
     psd = {'loc':1, 'scale':0.01}
-    pore_charge = 1
+    pore_charge = -2*e # sulfate group
     # lennard jones parameters for each ion type interacting with pore
     pore_eps = {ParticleType.PROTON: 1
                 ParticleType.CATHODE_ION: 1
