@@ -1,7 +1,7 @@
 import numpy as np
 
 # globals
-K_E = 8.988e9  #coulomb constant
+K_E = 8.988e27  #coulomb constant (N*nm^2/C^2)
 
 # simple two atom potential functions
 def LJF_attractive(l1, l2, eps, sigma):
@@ -17,7 +17,7 @@ def LJF_attractive(l1, l2, eps, sigma):
     r_ij = np.sqrt(dx**2 + dy**2)
 
     # Calculate magnitude of attractive field according to Lennard-Jones Potential
-    field_mag = -24*eps*(sigma**6)/(r_ij**7) # Includes negative to account for attraction
+    field_mag = -24e-9*eps*(sigma**6)/(r_ij**7) # Includes negative to account for attraction
 
     # Update electric field vector
     f_x = field_mag * dx/r_ij
@@ -31,7 +31,7 @@ def coulomb(l1, l2, charge1, charge2):
     dy = l1[1] - l2[1]
     r_ij = np.sqrt(dx**2 + dy**2)
 
-    f_mag = K_E*charge1*charge2 / (r_ij**2) # Includes sign to indicate attractive (-) or repulsive (+)
+    f_mag = K_E*(charge1*charge2 / (r_ij**2)) # Includes sign to indicate attractive (-) or repulsive (+)
 
     f_x = f_mag * (dx/r_ij)
     f_y = f_mag * (dy/r_ij)
@@ -45,7 +45,7 @@ def LJF_repulsive(l1, l2, eps, sigma):
     r_ij = np.sqrt(dx**2 + dy**2)
 
     # Calculate magnitude of repulsive field according to Lennard-Jones Potential
-    field_mag = 48*eps*(sigma**12)/(r_ij**13)
+    field_mag = 48e-9*eps*(sigma**12)/(r_ij**13)
 
     # Update electric field vector
     f_x = field_mag * dx/r_ij

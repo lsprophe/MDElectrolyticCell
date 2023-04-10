@@ -8,31 +8,36 @@ from MD.types import ParticleType
 
 # GLOBALS
 e = 1.602*10**(-19)
+AVO = 6.022*10**(23)
 
 @dataclass
 class Material:
     porosity = 0.4
-    psd = {'loc':1, 'scale':0.01}
-    pore_charge = -2*e # sulfate group
+    psd = {'loc':5, 'scale':0.1}  # nm
+    pore_charge = -2*e # sulfate group charge
+    # NOTE: because we couldn't find the information, we are assuming that 
+    # the potential well depth (epsilon) is 1 kJ/mol for all interactions
     # lennard jones parameters for each ion type interacting with pore
-    pore_eps = {ParticleType.PROTON: 1,
-                ParticleType.CATHODE_ION: 1,
-                ParticleType.ANODE_ION: 1}
-    pore_sigma = {ParticleType.PROTON: 1,
-                  ParticleType.CATHODE_ION: 1,
-                  ParticleType.ANODE_ION: 1}
+    eps = 1000 * (1/AVO) * (10**9)  # units: (N nm)
+    pore_eps = {ParticleType.PROTON: eps,
+                ParticleType.CATHODE_ION: eps,
+                ParticleType.ANODE_ION: eps}
+    pore_sigma = {ParticleType.PROTON: 0.0745,
+                  ParticleType.CATHODE_ION: 0.86,
+                  ParticleType.ANODE_ION: 0.4245}  # nm
 
     # lennard jones parameters for each ion type interacting with base
     # NOTE: base is assumed to be neutral and has no charge
-    base_eps = {ParticleType.PROTON: 1,
-                ParticleType.CATHODE_ION: 1,
-                ParticleType.ANODE_ION: 1}
-    base_sigma = {ParticleType.PROTON: 1,
-                  ParticleType.CATHODE_ION: 1,
-                  ParticleType.ANODE_ION: 1}
+    base_eps = {ParticleType.PROTON: eps,
+                ParticleType.CATHODE_ION: eps,
+                ParticleType.ANODE_ION: eps}
+    # nanometers
+    base_sigma = {ParticleType.PROTON: 0.0355,
+                  ParticleType.CATHODE_ION: 0.821,
+                  ParticleType.ANODE_ION: 0.3855}  # nm
 
     pore_density = 100  # number density of particles in pores (related to hydration)
-    base_density = 10000 # number density of particles in backbone
+    base_density = 5000 # number density of particles in backbone
     cf = 1  # continuity factor (see pore_locations)
 
 class Membrane:
