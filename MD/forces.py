@@ -1,4 +1,5 @@
 import numpy as np
+from MD.types import LJ_DICT, ParticleType
 
 # globals
 K_E = 8.988e27  #coulomb constant (N*nm^2/C^2)
@@ -22,7 +23,6 @@ def LJF_attractive(l1, l2, eps, sigma):
     # Update electric field vector
     f_x = field_mag * dx/r_ij
     f_y = field_mag * dy/r_ij
-
     return np.array([f_x, f_y])
 
 def coulomb(l1, l2, charge1, charge2):
@@ -35,7 +35,6 @@ def coulomb(l1, l2, charge1, charge2):
 
     f_x = f_mag * (dx/r_ij)
     f_y = f_mag * (dy/r_ij)
-
     return np.array([f_x, f_y])
 
 def LJF_repulsive(l1, l2, eps, sigma):
@@ -50,7 +49,6 @@ def LJF_repulsive(l1, l2, eps, sigma):
     # Update electric field vector
     f_x = field_mag * dx/r_ij
     f_y = field_mag * dy/r_ij
-
     return np.array([f_x, f_y])
 
 def ext_field(lx, particles, p0, pl):
@@ -91,8 +89,20 @@ def pair_pot(particle, particles):
 
             # Calculate electric field according to Coulomb interactions
             (f_x,f_y) = coulomb(particle.q, l_j, particle.charge, charge_j)
-
             # Update pair-potential force
             force += np.array([f_x, f_y])
+
+            # if one of the particles is a sulfate group, also use the repulsive
+            # lennard-jones force
+            t1 = particle.type
+            t2 = p_j.type
+            if t1 is ParticleType.SULFATE:
+                lf_p = LJ_DICT[t1][t2]
+                ljf = LJF_repulsive(particle.q, l_j, lf_p["eps"], lf_p["sigma"])
+                force += ljf
+            elif t2 is ParticleType.SULFATE:
+                lf_p = LJ_DICT[t1][t2]
+                ljf = LJF_repulsive(particle.q, l_j, lf_p["eps"], lf_p["sigma"])
+                force += ljf
 
     return force
