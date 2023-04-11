@@ -21,23 +21,28 @@ class Material:
     eps = 1000 * (1/AVO) * (10**9)  # units: (N nm)
     pore_eps = {ParticleType.PROTON: eps,
                 ParticleType.CATHODE_ION: eps,
-                ParticleType.ANODE_ION: eps}
+                ParticleType.ANODE_ION: eps,
+                ParticleType.SULFATE: eps}
+    
     pore_sigma = {ParticleType.PROTON: 0.0745,
                   ParticleType.CATHODE_ION: 0.86,
-                  ParticleType.ANODE_ION: 0.4245}  # nm
+                  ParticleType.ANODE_ION: 0.4245,
+                  ParticleType.SULFATE: 0.149}  # nm
 
     # lennard jones parameters for each ion type interacting with base
     # NOTE: base is assumed to be neutral and has no charge
     base_eps = {ParticleType.PROTON: eps,
                 ParticleType.CATHODE_ION: eps,
-                ParticleType.ANODE_ION: eps}
+                ParticleType.ANODE_ION: eps,
+                ParticleType.SULFATE: eps}
     # nanometers
     base_sigma = {ParticleType.PROTON: 0.0355,
                   ParticleType.CATHODE_ION: 0.821,
-                  ParticleType.ANODE_ION: 0.3855}  # nm
+                  ParticleType.ANODE_ION: 0.3855,
+                  ParticleType.SULFATE: 0.11}  # nm
 
-    pore_density = 100  # number density of particles in pores (related to hydration)
-    base_density = 5000 # number density of particles in backbone
+    pore_density: int = 50 # number density of particles in pores (related to hydration)
+    base_density: int = 1000 # number density of particles in backbone
     cf = 1  # continuity factor (see pore_locations)
 
 class Membrane:

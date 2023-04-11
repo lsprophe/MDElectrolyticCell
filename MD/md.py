@@ -87,10 +87,11 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
 
     # iterate over time steps (keep track of step in case steps are skipped)
     # show initial positions
-    scatter(particles, membrane)
+    scatter(particles, membrane, "initial")
     i = 0
     while i < n_steps:
         # iterate over particles in particle list
+        print(f"on step: {i}")
         for pi, p in enumerate(particles):
             p.update_force(particles, membrane)
             p.update_v(dt/2.)
@@ -115,6 +116,7 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
 
         if i % 10 == 0:
             scatter(particles, membrane, i)
+            fig = plt.figure()
             pes.calculate(particles)
             plt.plot(pes.x_arr, pes.v_func(pes.x_arr))
             plt.title(f"Potential Distribution, Iteration {i}")
@@ -124,10 +126,11 @@ def verlet_integrator(particles: list, pes, membrane, n_steps, dt, rand_max=1, s
     return t_arr
 
 def scatter(particles, membrane, i):
+    fig = plt.figure()
     plt.scatter([p[0] for p in membrane.base_particles], [p[1] for p in membrane.base_particles], label="Membrane - Base")
     plt.scatter([p[0] for p in membrane.pore_particles], [p[1] for p in membrane.pore_particles], label="Membrane - Pores")
-    plt.xlim(0, 10)
-    plt.ylim(0,10)
+    plt.xlim(0, 100)
+    plt.ylim(0,30)
     plt.scatter([p.q[0] for p in particles if p.type is ParticleType.CATHODE_ION], [p.q[1] for p in particles if p.type is ParticleType.CATHODE_ION], label="Cathode Ions")
     plt.scatter([p.q[0] for p in particles if p.type is ParticleType.ANODE_ION], [p.q[1] for p in particles if p.type is ParticleType.ANODE_ION], label="Anode Ions")
     plt.scatter([p.q[0] for p in particles if p.type is ParticleType.PROTON], [p.q[1] for p in particles if p.type is ParticleType.PROTON], label="Protons")
@@ -140,7 +143,7 @@ def elastic_boundaries(q, x_range, y_range):
     if (q[0] > x_range[1]) or (q[0] < x_range[0]):
         v_mod[0] = -1
     
-    if (q[1] > y_range[1]) or (q[0] < y_range[1]):
+    if (q[1] > y_range[1]) or (q[1] < y_range[0]):
         v_mod[1] = -1
     
     return v_mod

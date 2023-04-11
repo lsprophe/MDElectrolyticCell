@@ -101,7 +101,7 @@ def pair_pot(particle, particles):
                 ljf = LJF_repulsive(particle.q, l_j, lf_p["eps"], lf_p["sigma"])
                 force += ljf
             elif t2 is ParticleType.SULFATE:
-                lf_p = LJ_DICT[t1][t2]
+                lf_p = LJ_DICT[t2][t1]
                 ljf = LJF_repulsive(particle.q, l_j, lf_p["eps"], lf_p["sigma"])
                 force += ljf
 

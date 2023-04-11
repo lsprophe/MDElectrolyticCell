@@ -20,18 +20,6 @@ class PoissonPES:
     def calculate(self, particles):
         self.E_func, self.v_func = poisson(self.nx, self.lx, particles, self.p0, self.pl)
 
-    def force(self, particle):
-        pos = particle.q
-        charge = particle.charge
-        force = poisson_force(self.E_func, pos, charge)
-        return force
-
-def poisson_force(E_x_func, pos, charge):
-    # NOTE: because we are not looking at potential distribution in
-    # y that there is no y component to this force
-    E_xp = E_x_func(pos[0])
-    F_xp = E_xp * charge
-    return F_xp
 
 def poisson(nx, lx, particles, p0, pl):
     ''' Arguments:
