@@ -13,19 +13,19 @@ LJ_DICT = {
     ParticleType.SULFATE: {
     ParticleType.PROTON: {
     "eps": eps,
-    "sigma": 0.0745
+    "sigma": 0.1215
     },
     ParticleType.SULFATE: {
     "eps": eps,
-    "sigma": 0.149
+    "sigma": 0.242
     },
     ParticleType.ANODE_ION: {
     "eps": eps,
-    "sigma": 0.4245
+    "sigma": 0.71
     },
     ParticleType.CATHODE_ION: {
     "eps": eps,
-    "sigma": 0.86
+    "sigma": 0.4983
     }
     }
 }

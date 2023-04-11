@@ -24,10 +24,10 @@ class Material:
                 ParticleType.ANODE_ION: eps,
                 ParticleType.SULFATE: eps}
     
-    pore_sigma = {ParticleType.PROTON: 0.0745,
-                  ParticleType.CATHODE_ION: 0.86,
-                  ParticleType.ANODE_ION: 0.4245,
-                  ParticleType.SULFATE: 0.149}  # nm
+    pore_sigma = {ParticleType.PROTON: 0.1215,
+                  ParticleType.CATHODE_ION: 0.4983,
+                  ParticleType.ANODE_ION: 0.71,
+                  ParticleType.SULFATE: 0.242}  # nm
 
     # lennard jones parameters for each ion type interacting with base
     # NOTE: base is assumed to be neutral and has no charge
@@ -37,9 +37,9 @@ class Material:
                 ParticleType.SULFATE: eps}
     # nanometers
     base_sigma = {ParticleType.PROTON: 0.0355,
-                  ParticleType.CATHODE_ION: 0.821,
+                  ParticleType.CATHODE_ION: 0.4128,
                   ParticleType.ANODE_ION: 0.3855,
-                  ParticleType.SULFATE: 0.11}  # nm
+                  ParticleType.SULFATE: 0.1565}  # nm
 
     pore_density: int = 50 # number density of particles in pores (related to hydration)
     base_density: int = 1000 # number density of particles in backbone
